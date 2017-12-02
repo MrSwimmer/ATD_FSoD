@@ -1,6 +1,11 @@
 #include <iostream>
+#include <fstream>
+#include "KP.h"
+#include "FSD.h"
 
+using namespace std;
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    FSD fsd;
+    fsd.insert("key", "value");
     return 0;
 }
