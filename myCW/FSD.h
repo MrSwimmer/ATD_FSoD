@@ -13,8 +13,7 @@ class FSD {
     const char* NOTES_FILE_NAME = "notes.txt";
 
 public:
-
-    void insert(string ikey, Note iNote);
+    void insert(string ikey, void* iNote, int size);
 };
 
 #endif //ATD_FSOD_FSD_H

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void FSD::insert(string ikey, Note iNote) {
+void FSD::insert(string ikey, void* iNote, int size) {
 
     ofstream iout(INDEX_FILE_NAME, ios::binary | ios::app);
     ofstream nout(NOTES_FILE_NAME, ios::binary | ios::app);
@@ -20,7 +20,10 @@ void FSD::insert(string ikey, Note iNote) {
     long long point;
     file.seekg (0, ios::end);
     point = file.tellg();
-    nout.write((char*)&iNote, sizeof(Note));
+
+    nout.write((char*)&size, sizeof(int));
+    nout.write((char*)iNote, size);
+
     nout.close();
 
     KP kp(ikey, point);
@@ -33,9 +36,11 @@ void FSD::insert(string ikey, Note iNote) {
         cout << kpr.key << " " << kpr.pointer << endl;
     }
     while (!nin.eof()){
-        Note note;
-        nin.read((char*)&note, sizeof(Note));
-        cout << note.note << endl;
+        char note[]= {};
+        int k;
+        nin.read((char*)&k, sizeof(int));
+        nin.read((char*)&note, k);
+        cout << note << endl;
     }
     iin.close();
 }
