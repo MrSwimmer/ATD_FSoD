@@ -13,7 +13,7 @@ FSD::FSD(const char *name, int idx_count, bool locked):FSD() {
     open(name, idx_count, locked);
 }
 
-FSD::~FSD() {
+FSD::~FSD() {//
     flush_block(cur_block);
     if (!is_locked)
         compress();
