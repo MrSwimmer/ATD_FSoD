@@ -6,6 +6,8 @@
 using namespace std;
 int main() {
     FSD fsd;
-    fsd.insert("key", "value");
+    //INote<int> iNote;
+    Note note("oooooo");
+    fsd.insert("key", note);
     return 0;
 }

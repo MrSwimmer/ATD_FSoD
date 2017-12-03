@@ -5,15 +5,16 @@
 #ifndef ATD_FSOD_FSD_H
 #define ATD_FSOD_FSD_H
 
+#include "Note.h"
 
+using namespace std;
 class FSD {
-    const char* INDEX_FILE_NAME = "index";
+    const char* INDEX_FILE_NAME = "index.txt";
     const char* NOTES_FILE_NAME = "notes.txt";
 
 public:
 
-    void insert(std::string ikey, std::string inote);
+    void insert(string ikey, Note iNote);
 };
-
 
 #endif //ATD_FSOD_FSD_H

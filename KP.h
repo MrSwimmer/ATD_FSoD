@@ -5,10 +5,9 @@
 #ifndef ATD_FSOD_KP_H
 #define ATD_FSOD_KP_H
 
-
 class KP {
 public:
-    KP(char *key, int pointer) {
+    KP(std::string key, int pointer) {
         this->key = key;
         this->pointer = pointer;
     }
@@ -18,7 +17,7 @@ public:
     }
 
     int pointer;
-    char *key;
+    std::string key;
 };
 
 
