@@ -8,6 +8,7 @@
 #include <iostream>
 
 using namespace std;
+///
 
 FSD::FSD(const char *name, int idx_count, bool locked):FSD() {
     open(name, idx_count, locked);
