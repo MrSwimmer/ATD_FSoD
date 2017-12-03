@@ -1,15 +1,13 @@
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
-#include <ctime>
-#include "myCW/KP.h"
-#include "myCW/FSD.h"
+#include "KP.h"
+#include "FSD.h"
+
 using namespace std;
-
-
 int main() {
     FSD fsd;
-    char k[] = "qqqqqqq";
-    fsd.insert("key", k, 7);
+    //INote<int> iNote;
+    Note note("oooooo");
+    fsd.insert("key", note);
     return 0;
 }
