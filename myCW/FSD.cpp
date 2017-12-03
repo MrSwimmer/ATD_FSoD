@@ -19,7 +19,7 @@ void FSD::insert(string ikey, void* iNote, int size) {
 
     long long point;
     file.seekg (0, ios::end);
-    point = file.tellg();
+    point = file.tellg();//
 
     nout.write((char*)&size, sizeof(int));
     nout.write((char*)iNote, size);
