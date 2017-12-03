@@ -42,6 +42,7 @@ float FSD::insert_item(void *data, int size) {
     /*Нулевой ключ зарезервирован для пустых записей.*/
     max_key++;
 
+
     if (max_key == 1)
     {
         idx.write((char*)&count, sizeof(int));
@@ -49,6 +50,7 @@ float FSD::insert_item(void *data, int size) {
         idx.write((char*)&tail, sizeof(adress));
         //idx.flush();
     }
+
 
     /*Размер элемента.*/
     //int item_size = sizeof(float) + sizeof(adress);
