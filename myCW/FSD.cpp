@@ -26,7 +26,7 @@ void FSD::insert(string ikey, void* iNote, int size) {
 
     nout.close();
 
-    KP kp(ikey, point);
+    KP kp(ikey, point);//
     iout.write((char*)&kp, sizeof(KP));
     iout.close();
 
