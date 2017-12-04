@@ -6,8 +6,13 @@
 using namespace std;
 int main() {
     FSD fsd;
-    //INote<int> iNote;
-    Note note("oooooo");
-    fsd.insert("key", note);
+    char note[] = "iiiiiii";
+    fsd.insert("key", &note, sizeof(note));
+    fsd.insert("keq", &note, sizeof(note));
+    fsd.insert("kew", &note, sizeof(note));
+    fsd.insert("kee", &note, sizeof(note));
+    fsd.insert("ker", &note, sizeof(note));
+    char get[] = {};
+    fsd.getnote(get, "kew");
     return 0;
 }

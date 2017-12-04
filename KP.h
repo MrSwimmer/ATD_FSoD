@@ -7,7 +7,7 @@
 
 class KP {
 public:
-    KP(std::string key, int pointer) {
+    KP(char* key, int pointer) {
         this->key = key;
         this->pointer = pointer;
     }
@@ -17,7 +17,7 @@ public:
     }
 
     int pointer;
-    std::string key;
+    char* key;
 };
 
 
