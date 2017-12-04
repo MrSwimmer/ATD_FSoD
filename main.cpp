@@ -1,6 +1,4 @@
 #include <iostream>
-#include <fstream>
-#include "KP.h"
 #include "FSD.h"
 
 using namespace std;
