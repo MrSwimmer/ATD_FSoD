@@ -5,8 +5,7 @@
 #ifndef ATD_FSOD_FSD_H
 #define ATD_FSOD_FSD_H
 
-#include "Note.h"
-
+#include "iostream"
 using namespace std;
 class FSD {
     const char* INDEX_FILE_NAME = "index.txt";
@@ -14,7 +13,12 @@ class FSD {
 
 public:
 
-    void insert(string ikey, Note iNote);
+    void insert(string ikey, void *iNote, int size);
+    void getnote(char *dest, string key);
+
+    void insert(char *ikey, void *iNote, int size);
+
+    void getnote(char *dest, char *key);
 };
 
 #endif //ATD_FSOD_FSD_H
