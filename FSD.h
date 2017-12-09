@@ -6,6 +6,8 @@
 #define ATD_FSOD_FSD_H
 
 #include "iostream"
+#include "KP.h"
+
 using namespace std;
 class FSD {
     const char* INDEX_FILE_NAME = "index.txt";
@@ -16,14 +18,19 @@ class FSD {
     int count_empty_blocks;
 
 public:
-    /*void insert(string ikey, void *iNote, int size);
-    void getnote(char *dest, string key);*/
     void insert(char *ikey, void *iNote, int size);
     void getnote(char *dest, char *key);
     FSD();
     void getall();
-
     long long int addToEnd(void *iNote, int size);
+    void fillInAll();
+    long long getBeginBlock(char *key);
+
+    void moveNotesInBlock();
+
+    void moveNotesInBlock(KP kp, long long int place);
+
+    void moveNotesInBlock(long long int place, int i);
 };
 
 #endif //ATD_FSOD_FSD_H
