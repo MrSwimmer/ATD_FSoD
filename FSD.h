@@ -25,12 +25,6 @@ public:
     long long int addToEnd(void *iNote, int size);
     void fillInAll();
     long long getBeginBlock(char *key);
-
-    void moveNotesInBlock();
-
-    void moveNotesInBlock(KP kp, long long int place);
-
-    void moveNotesInBlock(long long int place, int i);
 };
 
 #endif //ATD_FSOD_FSD_H

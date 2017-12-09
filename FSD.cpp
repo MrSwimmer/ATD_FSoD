@@ -18,11 +18,10 @@ char * randomString (int sybols = 3) {
     str = new char [sybols+1];
     for (int i = 0; i < sybols; i++)
     {
-        str [i]  = static_cast<char>(rand());
+        str [i]  = static_cast<char>(97 + rand() % 10);
     }
     str[sybols] = '\0';
     return str;
-    cout << str;
 }
 using namespace std;
 FSD::FSD() {
@@ -32,41 +31,29 @@ FSD::FSD() {
         cout << "YUP";
     } else {
         cout << "NOPE";
-        count_empty_blocks=COUNT_BLOCKS;
         ofstream iout(INDEX_FILE_NAME, ios::binary | ios::app);
-        for(int i=0; i<=COUNT_BLOCKS*COUNT_NOTES_IN_BLOCK; i++){
-            if(i==0||(i%COUNT_NOTES_IN_BLOCK==0&&i>1000)){
+        for(int i=0; i<COUNT_BLOCKS*COUNT_NOTES_IN_BLOCK; i++){
+            if(i==0||(i%COUNT_NOTES_IN_BLOCK==0&&i>=COUNT_NOTES_IN_BLOCK)){
                 if(COUNT_SYMBOLS_IN > 0) {
-                    char first_in_block = COUNT_SYMBOLS_IN * ((i) / COUNT_NOTES_IN_BLOCK);
-                    char *hh = new char{first_in_block};
-                    long long point = addToEnd(hh, sizeof(hh));
-                    //cout << endl << "OK p " << point  << " symbol " << first_in_block << endl;
+                    char first_in_block = COUNT_SYMBOLS_IN * (i / COUNT_NOTES_IN_BLOCK);
+                    string str = first_in_block+".";
+                    char *hh = new char[1];
+                    hh[0]=first_in_block;
+                    cout << "fsib " << hh << endl;
+                    long long point = addToEnd(&hh[0], sizeof(hh));
                     KP kp(hh, point);
                     iout.write((char*)&kp, sizeof(KP));
                     continue;
                 }
             } else {
-                KP kp("_", 0);
-                //cout << kp.key;
+                KP kp("_", -1);
                 iout.write((char*)&kp, sizeof(KP));
+
             }
         }
         iout.close();
     }
 }
-void FSD::fillInAll() {
-    srand(static_cast<unsigned int>(time(NULL)));
-    ofstream iout(INDEX_FILE_NAME, ios::binary | ios::app);
-    for(int i=0; i<=COUNT_BLOCKS*COUNT_NOTES_IN_BLOCK; i++){
-        if(i==0||((i)%COUNT_NOTES_IN_BLOCK==0&&i>1000)){
-        } else {
-            KP kp(randomString(), -1);
-            char *q = "11111";
-            insert(randomString(), q, sizeof(KP));
-        }
-    }
-}
-
 long long FSD::addToEnd(void* iNote, int size) {
     ofstream nout("notes.txt", ios::binary | ios::app);
 
@@ -82,7 +69,7 @@ long long FSD::addToEnd(void* iNote, int size) {
 
     return point;
 }
-void FSD::insert(char ikey[], void* iNote, int size) {
+void FSD::insert(char* ikey, void* iNote, int size) {
 
     ofstream iout(INDEX_FILE_NAME, ios::binary);
     ifstream iin(INDEX_FILE_NAME, ios::binary);
@@ -91,9 +78,11 @@ void FSD::insert(char ikey[], void* iNote, int size) {
     cout << begin/ sizeof(KP) << endl;
     KP kpr, buf;
     iin.seekg(begin);//переходим к началу блока
-    for (int i = 0; i < COUNT_NOTES_IN_BLOCK-2; i++) {
+    for (int i = 0; i < COUNT_NOTES_IN_BLOCK; i++) {
         //получаем запись из блока
+        //ERROR! при чтении объекта происходит ошибка - tellg = -1 (место работы в файле)
         iin.read((char*)&kpr, sizeof(KP));
+        long long local = iin.tellg();
         if(kpr.key>ikey){
             long long placeInsert = begin+(i* sizeof(KP));//где
             KP newkp(ikey, point);//новый
@@ -101,33 +90,17 @@ void FSD::insert(char ikey[], void* iNote, int size) {
             iout.write((char*)&newkp, sizeof(KP));//пишем новый
             buf = kpr;//запоминаем старый
             placeInsert+= sizeof(KP);
-            for(int j=i; j<COUNT_NOTES_IN_BLOCK&&buf.key!="_"; j++) {
-                //iin.seekg(placeInsert);
+            /*for(int j=i; j<COUNT_NOTES_IN_BLOCK&&buf.key!="_"; j++) {
                 iin.read((char*)&kpr, sizeof(KP));
-                //iout.seekp(placeInsert);
                 iout.write((char*)&buf, sizeof(KP));
                 buf=kpr;
                 placeInsert+= sizeof(KP);
-            }
-            moveNotesInBlock(placeInsert, i);
+            }*/
             break;
         }
     }
     iin.close();
     iout.close();
-}
-void FSD::moveNotesInBlock(long long place, int i) {
-    ifstream iin(INDEX_FILE_NAME, ios::binary);
-    ofstream iout(INDEX_FILE_NAME, ios::binary);
-
-    iin.seekg(place);
-    KP kpr;
-    for(; i<COUNT_NOTES_IN_BLOCK; i++) {
-        iin.read((char*)&kpr, sizeof(KP));
-        long long placeInsert = place+(i* sizeof(KP));
-        iout.seekp(placeInsert);
-
-    }
 }
 long long FSD::getBeginBlock(char* key){
     ifstream iin(INDEX_FILE_NAME, ios::binary);
@@ -138,6 +111,8 @@ long long FSD::getBeginBlock(char* key){
     while (middle!=0&&middle!=topdiv){
         iin.seekg((middle*COUNT_NOTES_IN_BLOCK)* sizeof(KP));
         iin.read((char*)&kpr, sizeof(KP));
+        string str = key;
+        string sec = kpr.key;
         if(key < kpr.key) {
             middle/=2;
         } else {
@@ -180,12 +155,8 @@ void FSD::getall() {
         iin.read((char*)&kpr, sizeof(KP));
         if(count!=0) {
             string str = kpr.key;
-            cout << count << " " << str << endl;
-        } else if(count==2000) {
-            string str = kpr.key;
-            cout << count << " " << str << endl;
+            cout << count << " " << str << "loc " << iin.tellg() << endl;
         }
-
         count++;
     }
     iin.close();
