@@ -8,20 +8,12 @@
 #include <io.h>
 #include <cstdlib>
 #include <ctime>
-
+bool comparemas(char *a, char *b) {
+    return a[0] < b[0];
+}
 bool FileExists(const char *fname)
 {
     return access(fname, 0) != -1;
-}
-char * randomString (int sybols = 3) {
-    char *str;
-    str = new char [sybols+1];
-    for (int i = 0; i < sybols; i++)
-    {
-        str [i]  = static_cast<char>(97 + rand() % 10);
-    }
-    str[sybols] = '\0';
-    return str;
 }
 using namespace std;
 FSD::FSD() {
@@ -48,7 +40,6 @@ FSD::FSD() {
             } else {
                 KP kp("_", -1);
                 iout.write((char*)&kp, sizeof(KP));
-
             }
         }
         iout.close();
@@ -56,7 +47,6 @@ FSD::FSD() {
 }
 long long FSD::addToEnd(void* iNote, int size) {
     ofstream nout("notes.txt", ios::binary | ios::app);
-
     fstream file("notes.txt");
 
     long long point;
@@ -71,7 +61,6 @@ long long FSD::addToEnd(void* iNote, int size) {
 }
 void FSD::insert(char* ikey, void* iNote, int size) {
 
-    ofstream iout(INDEX_FILE_NAME, ios::binary);
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     long long point = addToEnd(iNote, size);//добавляем в конец notes запись, в point указатель
     long long begin = getBeginBlock(ikey);//получаем начало блока, в который надо положть запись
@@ -79,28 +68,28 @@ void FSD::insert(char* ikey, void* iNote, int size) {
     KP kpr, buf;
     iin.seekg(begin);//переходим к началу блока
     for (int i = 0; i < COUNT_NOTES_IN_BLOCK; i++) {
-        //получаем запись из блока
-        //ERROR! при чтении объекта происходит ошибка - tellg = -1 (место работы в файле)
-        iin.read((char*)&kpr, sizeof(KP));
+
+        iin.read((char*)&kpr, sizeof(KP));//получаем запись из блока
         long long local = iin.tellg();
-        if(kpr.key>ikey){
+        if(comparemas(ikey, kpr.key)||kpr.key=="_"){
+            iin.close();
+            ofstream iout(INDEX_FILE_NAME, ios::binary);
             long long placeInsert = begin+(i* sizeof(KP));//где
             KP newkp(ikey, point);//новый
             iout.seekp(placeInsert);
             iout.write((char*)&newkp, sizeof(KP));//пишем новый
             buf = kpr;//запоминаем старый
             placeInsert+= sizeof(KP);
-            /*for(int j=i; j<COUNT_NOTES_IN_BLOCK&&buf.key!="_"; j++) {
+            for(int j=i; j<COUNT_NOTES_IN_BLOCK&&buf.key!="_"; j++) {
                 iin.read((char*)&kpr, sizeof(KP));
                 iout.write((char*)&buf, sizeof(KP));
                 buf=kpr;
                 placeInsert+= sizeof(KP);
-            }*/
+            }
+            iout.close();
             break;
         }
     }
-    iin.close();
-    iout.close();
 }
 long long FSD::getBeginBlock(char* key){
     ifstream iin(INDEX_FILE_NAME, ios::binary);
@@ -108,15 +97,19 @@ long long FSD::getBeginBlock(char* key){
     int middle = COUNT_BLOCKS/2;
     int div=2;
     int topdiv=COUNT_BLOCKS-1;
-    while (middle!=0&&middle!=topdiv){
+    while (COUNT_BLOCKS-middle!=1&&middle!=topdiv){
         iin.seekg((middle*COUNT_NOTES_IN_BLOCK)* sizeof(KP));
         iin.read((char*)&kpr, sizeof(KP));
-        string str = key;
-        string sec = kpr.key;
-        if(key < kpr.key) {
+        if(comparemas(key, kpr.key)) {
             middle/=2;
         } else {
-            middle+=middle/div;
+            int nd = middle/div;
+            if(nd!=0){
+                middle+=nd;
+            } else {
+                middle++;
+                break;
+            }
         }
         div*=2;
         cout << "mid " << middle << endl;
@@ -148,14 +141,22 @@ void FSD::getnote(char *dest, char* key) {
 }
 void FSD::getall() {
     ifstream iin(INDEX_FILE_NAME, ios::binary);
-    ifstream nin(NOTES_FILE_NAME, ios::binary);
+    //ifstream nin(NOTES_FILE_NAME, ios::binary);
     int count = 0;
     KP kpr;
     while (!iin.eof()){
         iin.read((char*)&kpr, sizeof(KP));
         if(count!=0) {
-            string str = kpr.key;
-            cout << count << " " << str << "loc " << iin.tellg() << endl;
+            try {
+                if(kpr.key==NULL) {
+                    throw 0;
+                }
+                cout << count << " " << kpr.key << "loc " << iin.tellg() << endl;
+            } catch (int a) {
+                if(a==0) {
+                    cout << "null" << endl;
+                }
+            }
         }
         count++;
     }
