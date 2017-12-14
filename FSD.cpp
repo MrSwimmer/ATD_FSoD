@@ -121,12 +121,16 @@ long long int FSD::getLocalNote(char* ikey, KP kpr = kpr, int c = 0) {
         }
     }
 }
-void FSD::getNote(char* ikey, void* buf){
+void FSD::getNote(char* ikey, void* note){
     long long locget = getLocalNote(ikey);
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     iin.seekg(locget);
-    iin.read((char*)buf, sizeof(buf));
+    KP buf;
+    iin.read((char*)&buf, sizeof(KP));
+    long long point = buf.pointer;
+    
 }
+
 void FSD::getall() {
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     int count = 0;
