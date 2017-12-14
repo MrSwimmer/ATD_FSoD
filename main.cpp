@@ -28,7 +28,7 @@ int main() {
     FSD fsd;
     //fsd.getall();
     char *note= "iiiiiii";
-    fsd.insert("key", note, sizeof(note));
+    fsd.insert("key", note);
     fsd.getall();
     /*for(int i=0; i<1000; i++) {
         char *str = randomStrings();

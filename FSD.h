@@ -15,16 +15,18 @@ class FSD {
     int COUNT_BLOCKS=8;
     int COUNT_NOTES_IN_BLOCK=1000;
     int COUNT_SYMBOLS_IN=255/COUNT_BLOCKS;
-    int count_empty_blocks;
 
 public:
-    void insert(char *ikey, void *iNote, int size);
-    void getnote(char *dest, char *key);
+    void insert(char *ikey, void *iNote);
     FSD();
     void getall();
-    long long int addToEnd(void *iNote, int size);
-    void fillInAll();
+    long long int addToEnd(void *iNote);
     long long getBeginBlock(char *key);
+    long long int getLocalNote(char *ikey, KP kpr, int c);
+
+    void getNote(char *ikey);
+
+    void getNote(char *ikey, void *buf);
 };
 
 #endif //ATD_FSOD_FSD_H
