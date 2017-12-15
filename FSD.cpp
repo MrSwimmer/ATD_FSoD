@@ -5,6 +5,8 @@
 #include "FSD.h"
 #include <io.h>
 #include <cstdlib>
+#include <list>
+
 bool comparemas(char *a, char *b) {
     return a[0] < b[0];
 }
@@ -106,7 +108,7 @@ long long FSD::getBeginBlock(char* key){
     }
     long long begin_block= ((middle-1)*COUNT_NOTES_IN_BLOCK)* sizeof(KP);
     return begin_block;
-}//начало блока
+}
 long long int FSD::getLocalNoteIndex(char* ikey, KP kpr = kpr, int c = 0, int wh=0) {
     long long begin = getBeginBlock(ikey);//получаем начало блока, в который надо положть запись
     ifstream iin(INDEX_FILE_NAME, ios::binary);
@@ -164,7 +166,7 @@ void FSD::delNote(char* key){
     iout.write((char*)&kp, sizeof(KP));
     iout.close();
 }
-void FSD::getall() {
+void FSD::getall(list<void*> notes) {
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     int count = 0;
     KP kpr;
@@ -176,7 +178,7 @@ void FSD::getall() {
                     throw 0;
                 }
                 cout << count << " " << kpr.key << "loc " << iin.tellg() << endl;
-                cout << getNoteSup(kpr.pointer) << endl;
+                notes.push_back(getNoteSup(kpr.pointer));
             } catch (int a) {
                 if(a==0) {
                     cout << "null" << endl;
