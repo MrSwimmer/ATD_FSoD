@@ -25,9 +25,11 @@ public:
     void *getNote(char *ikey);
     void *getNoteSup(long long int point);
     void delNote(char *key);
-    void moveNotes(int c, long long int placeInsert, ofstream iout);
     long long int getLocalNoteIndex(char *ikey, KP kpr, int c, int wh);
     void getall(std::__cxx11::list<void *> notes);
+    void moveNotes(int c, long long int placeInsert);
+
+    void getall(list<char *> notes);
 };
 
 #endif //ATD_FSOD_FSD_H

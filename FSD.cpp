@@ -36,7 +36,7 @@ FSD::FSD() {
                     continue;
                 }
             } else {
-                KP kp("_", -1);
+                KP kp(const_cast<char *>("_"), -1);
                 iout.write((char*)&kp, sizeof(KP));
             }
         }
@@ -59,20 +59,22 @@ long long FSD::addToEnd(void* iNote) { //помещение записи в ко
     return point;
 }
 void FSD::insert(char* ikey, void* iNote) {//вставка записи
-
     KP kpr;
     int c=1;
     long long point = addToEnd(iNote);//добавляем в конец notes запись, в point указатель
-    long long placeInsert = getLocalNoteIndex(ikey, kpr, c);//где
+    long long placeInsert = getLocalNoteIndex(ikey, kpr, c, 0);//где
     ofstream iout(INDEX_FILE_NAME, ios::binary);
     KP newkp(ikey, point);//новый
     iout.seekp(placeInsert);
     iout.write((char*)&newkp, sizeof(KP));//пишем новый
     placeInsert+= sizeof(KP);
-    moveNotes(c, placeInsert, iout);
+    iout.close();
+    moveNotes(c, placeInsert);
 }
-void FSD::moveNotes(int c, long long placeInsert, ofstream iout){
+void FSD::moveNotes(int c, long long placeInsert){
     KP kpr, buf;
+    ofstream iout(INDEX_FILE_NAME, ios::binary);
+    iout.seekp(placeInsert);
     for(int j=c; j<COUNT_NOTES_IN_BLOCK-1; j++) {//смещаем все записи
         ifstream iin(INDEX_FILE_NAME, ios::binary);
         iin.read((char*)&kpr, sizeof(KP));
@@ -109,7 +111,7 @@ long long FSD::getBeginBlock(char* key){
     long long begin_block= ((middle-1)*COUNT_NOTES_IN_BLOCK)* sizeof(KP);
     return begin_block;
 }
-long long int FSD::getLocalNoteIndex(char* ikey, KP kpr = kpr, int c = 0, int wh=0) {
+long long int FSD::getLocalNoteIndex(char* ikey, KP kpr, int c = 0, int wh=0) {
     long long begin = getBeginBlock(ikey);//получаем начало блока, в который надо положть запись
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     KP buf;
@@ -140,7 +142,8 @@ long long int FSD::getLocalNoteIndex(char* ikey, KP kpr = kpr, int c = 0, int wh
     }
 }
 void* FSD::getNote(char* ikey){
-    long long locget = getLocalNoteIndex(ikey);
+    KP kp;
+    long long locget = getLocalNoteIndex(ikey, kp);
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     iin.seekg(locget);
     KP buf;
@@ -161,12 +164,13 @@ void* FSD::getNoteSup(long long point){
 }
 void FSD::delNote(char* key){
     ofstream iout(INDEX_FILE_NAME, ios::binary);
-    iout.seekp(getLocalNoteIndex(key));
-    KP kp("_", -1);
+    KP kpr;
+    iout.seekp(getLocalNoteIndex(key, kpr));
+    KP kp(const_cast<char *>("_"), -1);
     iout.write((char*)&kp, sizeof(KP));
     iout.close();
 }
-void FSD::getall(list<void*> notes) {
+void FSD::getall(list<char*> notes) {
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     int count = 0;
     KP kpr;
@@ -178,7 +182,7 @@ void FSD::getall(list<void*> notes) {
                     throw 0;
                 }
                 cout << count << " " << kpr.key << "loc " << iin.tellg() << endl;
-                notes.push_back(getNoteSup(kpr.pointer));
+                //notes.push_back(getNoteSup(kpr.pointer));
             } catch (int a) {
                 if(a==0) {
                     cout << "null" << endl;
