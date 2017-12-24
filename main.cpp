@@ -17,14 +17,17 @@ char * randomStrings (int sybols = 3) {
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-    FSD fsd;
-    for(int i=0; i<10000; i++) {
-        char *str = randomStrings();
-        fsd.insert(str, &i);
+    FSD fsd(1000);
+    //fsd.getall();
+    for(int i=0; i<1000; i++){
+        char *m = randomStrings();
+        cout << m << endl;
+        fsd.insert(m, &i);
+        fsd.getall();
     }
-    fsd.getNote(const_cast<char *>("key"));
-    fsd.delNote(const_cast<char *>("kew"));
-    list<char*> mylist;
-    fsd.getall(mylist);
+    fsd.getall();
+    /*int a =3;
+    fsd.insert(const_cast<char *>("key"), &a);*/
+
     return 0;
 }

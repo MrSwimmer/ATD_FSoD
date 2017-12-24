@@ -11,11 +11,11 @@
 
 using namespace std;
 class FSD {
+
     const char* INDEX_FILE_NAME = "index.txt";
     const char* NOTES_FILE_NAME = "notes.txt";
-    int COUNT_BLOCKS=8;
-    int COUNT_NOTES_IN_BLOCK=1000;
-    int COUNT_SYMBOLS_IN=255/COUNT_BLOCKS;
+    int COUNT_BLOCKS=1;
+    int COUNT_NOTES_IN_BLOCK;
 
 public:
     FSD();
@@ -30,6 +30,12 @@ public:
     void moveNotes(int c, long long int placeInsert);
 
     void getall(list<char *> notes);
+
+    void getall();
+
+    FSD(int itemsInBlock);
+
+    long long int getLocalNoteIndex(char *ikey);
 };
 
 #endif //ATD_FSOD_FSD_H
