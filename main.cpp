@@ -21,9 +21,9 @@ int main() {
     //fsd.getall();
     for(int i=0; i<1000; i++){
         char *m = randomStrings();
-        cout << m << endl;
+        //cout << m << endl;
         fsd.insert(m, &i);
-        fsd.getall();
+        //fsd.getall();
     }
     fsd.getall();
     /*int a =3;

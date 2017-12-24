@@ -6,8 +6,10 @@
 #define ATD_FSOD_FSD_H
 
 #include <list>
+#include <set>
 #include "iostream"
 #include "KP.h"
+#include "Block.h"
 
 using namespace std;
 class FSD {
@@ -16,7 +18,7 @@ class FSD {
     const char* NOTES_FILE_NAME = "notes.txt";
     int COUNT_BLOCKS=1;
     int COUNT_NOTES_IN_BLOCK;
-
+    set<Block> blocks;
 public:
     FSD();
     void insert(char *ikey, void *iNote);
@@ -36,6 +38,8 @@ public:
     FSD(int itemsInBlock);
 
     long long int getLocalNoteIndex(char *ikey);
+
+    long long int getLocalNoteIndex(char *ikey, long long int mid);
 };
 
 #endif //ATD_FSOD_FSD_H
