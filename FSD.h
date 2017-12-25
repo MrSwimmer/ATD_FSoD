@@ -9,7 +9,7 @@
 #include <set>
 #include "iostream"
 #include "KP.h"
-#include "Block.h"
+
 
 using namespace std;
 class FSD {
@@ -18,9 +18,9 @@ class FSD {
     const char* NOTES_FILE_NAME = "notes.txt";
     int COUNT_BLOCKS=1;
     int COUNT_NOTES_IN_BLOCK;
-    set<Block> blocks;
+    KP blocks[100];
 public:
-    FSD();
+    FSD(int itemsInBlock);
     void insert(char *ikey, void *iNote);
     long long int addToEnd(void *iNote);
     long long getBeginBlock(char *key);
@@ -34,8 +34,6 @@ public:
     void getall(list<char *> notes);
 
     void getall();
-
-    FSD(int itemsInBlock);
 
     long long int getLocalNoteIndex(char *ikey);
 
