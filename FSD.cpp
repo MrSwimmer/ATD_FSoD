@@ -72,6 +72,10 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
             listkp.push_back(kp);
         } else if(kp.pointer<0) {
             cout << "endblock";
+            if(c!=0) {
+
+            }
+            c++;
             mid =(COUNT_NOTES_IN_BLOCK/2)* sizeof(KP);
             in.seekg(mid);
             list<KP> mlistkp;
@@ -84,7 +88,8 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
                 }
             }
             KP block(beg, COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS*sizeof(KP));
-            for(int i=0; i<COUNT_BLOCKS; i++) {
+            blocks[COUNT_BLOCKS]=block;
+            /*for(int i=0; i<COUNT_BLOCKS; i++) {
                 if(comparemas(block.key,blocks[i].key)) {
                     KP buf = blocks[i];
                     blocks[i]=block;
@@ -93,7 +98,7 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
                         blocks[j]=blocks[j+1];
                     }
                 }
-            }
+            }*/
             //blocks.insert(block);
             in.seekg(COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS* sizeof(KP));
             COUNT_BLOCKS++;

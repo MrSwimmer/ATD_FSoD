@@ -19,6 +19,7 @@ class FSD {
     int COUNT_BLOCKS=1;
     int COUNT_NOTES_IN_BLOCK;
     KP blocks[100];
+    int c=0;
 public:
     FSD(int itemsInBlock);
     void insert(char *ikey, void *iNote);

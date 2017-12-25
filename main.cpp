@@ -21,11 +21,16 @@ int main() {
     int a=100;
     FSD fsd(a);
     //fsd.getall();
-    for(int i=0; i<101; i++){
+    for(int i=0; i<150; i++){
         char *m = randomStrings();
         //cout << m << endl;
-        fsd.insert(m, &i);
-        //fsd.getall();
+
+        if(i==148){
+            fsd.getall();
+            fsd.insert(m, &i);
+        } else {
+            fsd.insert(m, &i);
+        }
     }
     fsd.getall();
     getchar();
