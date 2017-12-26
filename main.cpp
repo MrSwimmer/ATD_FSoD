@@ -5,37 +5,59 @@
 #include "FSD.h"
 
 using namespace std;
-char * randomStrings (int sybols = 3) {
+
+char *randomStrings(int sybols = 3) {
     char *str;
-    str = new char [sybols+1];
-    for (int i = 0; i < sybols; i++)
-    {
-        str [i]  = static_cast<char>(97 + rand() % 10);
+    str = new char[sybols + 1];
+    for (int i = 0; i < sybols; i++) {
+        str[i] = static_cast<char>(97 + rand() % 10);
     }
     str[sybols] = '\0';
     return str;
 }
 
-int main() {
-    srand(static_cast<unsigned int>(time(NULL)));
-    int a=100;
-    FSD fsd(a);
-    //fsd.getall();
-    for(int i=0; i<150; i++){
-        char *m = randomStrings();
-        //cout << m << endl;
+bool ex = false;
+FSD fsd(10);
 
-        if(i==148){
-            fsd.getall();
-            fsd.insert(m, &i);
-        } else {
-            fsd.insert(m, &i);
+char *key;
+
+void menu() {
+    int k = 1;
+    while (k != 0) {
+        cout << "1.Insert" << endl;
+        cout << "2.Delete" << endl;
+        cout << "3.Get" << endl;
+        cout << "4.Get all" << endl;
+        cin >> k;
+        switch (k) {
+            case 1:
+                for(int i=0; i<100; i++) {
+                    fsd.insert(randomStrings(), &i);
+                }
+                fsd.getall();
+                break;
+            case 2:
+                cout << "Please enter key" << endl;
+                gets(key);
+                fsd.delNote(key);
+                cout << "__ready__" << endl;
+                break;
+            case 3:
+                cout << "Please enter key" << endl;
+                gets(key);
+                cout << fsd.getNote(key) << endl;
+                cout << "__ready__" << endl;
+                break;
+            case 4:
+                fsd.getall();
+                cout << endl << "__ready__" << endl;
+                break;
         }
     }
-    fsd.getall();
-    getchar();
-    /*int a =3;
-    fsd.insert(const_cast<char *>("key"), &a);*/
+}
 
+int main() {
+    srand(static_cast<unsigned int>(time(NULL)));
+    menu();
     return 0;
 }
