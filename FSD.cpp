@@ -67,10 +67,11 @@ void FSD::getall() {
 }
 void FSD::insert(char* ikey, void* iNote) {//вставка записи
     long long point = addToEnd(iNote);//добавляем в конец notes запись, в point указатель
-    long long begin = getBeginBlock(ikey);
-    long long local = getLocalNoteInBlock(ikey, begin);
-    cout << begin << " " << local;
+    long long begin = getBeginBlock(ikey);//начало блока
+    long long local = getLocalNoteInBlock(ikey, begin);//номер записи
+    long long localins = (local+COUNT_NOTES_IN_BLOCK*begin)*sizeof(KP);//указатель на запись
     fstream in(INDEX_FILE_NAME, ios::binary | ios::out | ios::in);
+    in.seekg(localins);
     /*in.seekg(placeInsert);
     KP kp(ikey, point);
     list<KP> listkp;
@@ -217,7 +218,7 @@ long long FSD::getLocalNoteInBlock(char* key, long long beginblock){
             }
         }
     }
-    return (beg+COUNT_NOTES_IN_BLOCK*beginblock)*sizeof(KP);
+    return beg;
 }
 /*long long FSD::getLocalNoteIndex(char* ikey, long long mid) {
     long long local;
@@ -276,7 +277,6 @@ void FSD::delNote(char* key){
 KP::KP() {
 
 }
-
 bool KP::operator<(const KP &v) const {
     bool t = comparemas(this->key, v.key);
     return t;
