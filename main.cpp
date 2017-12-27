@@ -5,7 +5,20 @@
 #include "FSD.h"
 
 using namespace std;
-
+bool comparemass(char *a, char *b) {
+    if(b=="_") {
+        return true;
+    } else {
+        for(int i=0; a[0]!='\0'; i++) {
+            if(a[i]<b[i]) {
+                return true;
+            } else if (a[i]>b[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
 char *randomStrings(int sybols = 3) {
     char *str;
     str = new char[sybols + 1];
@@ -16,7 +29,7 @@ char *randomStrings(int sybols = 3) {
     return str;
 }
 
-bool ex = false;
+/*bool ex = false;
 FSD fsd(10);
 
 char *key;
@@ -54,10 +67,67 @@ void menu() {
                 break;
         }
     }
-}
+}*/
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-    menu();
-    return 0;
+    FSD fsd(10);
+    for (int i = 0; i < 100; ++i) {
+        fsd.insert("key", &i);
+        fsd.getall();
+    }
+    /*
+    FSD fsd(10);
+    for(int i=0; i<50; i++) {
+        fsd.insert(randomStrings(), &i);
+    }*/
+    //menu();
+    /*set<KP> setblocks;
+    for(int i=0; i<100; i++) {
+        char *rs = randomStrings();
+        cout << rs << endl;
+        KP kp(rs, i);
+        setblocks.insert(kp);
+    }
+    cout << endl;
+    for(auto i : setblocks) {
+        KP kp = i;
+        cout << kp.key << endl;
+    }
+
+    char *key = "baa";
+    int div=2;
+    int size=setblocks.size();
+    int loc=size/div;
+    while(true) {
+        int c=0;
+        char* keyset;
+        for(auto i : setblocks) {
+            if(c==loc) {
+                keyset = i.key;
+                break;
+            }
+            c++;
+        }
+        cout << loc;
+        if(comparemass(key, keyset)) {
+            if(div*2>size) {
+                cout << loc-size/div/2-1;
+                break;
+                //return loc-1;
+            } else {
+                div*=2;
+                loc-=size/div;
+            }
+        } else {
+            if(div>size) {
+                cout << loc+size/div/2-1;
+                break;
+                //return loc+1;
+            } else {
+                div*=2;
+                loc+=size/div;
+            }
+        }
+    }*/
 }

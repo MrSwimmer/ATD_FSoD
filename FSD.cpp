@@ -7,8 +7,12 @@
 #include <cstdlib>
 #include <list>
 
+bool FileExists(const char *fname) {
+    return access(fname, 0) != -1;
+}
+
 bool comparemas(char *a, char *b) {
-    if(b=="_"){
+    if(b=="_") {
         return true;
     } else {
         for(int i=0; a[0]!='\0'; i++) {
@@ -21,15 +25,13 @@ bool comparemas(char *a, char *b) {
         return true;
     }
 }
-bool FileExists(const char *fname) {
-    return access(fname, 0) != -1;
-}
 using namespace std;
 FSD::FSD(int itemsInBlock) {
     if(FileExists(INDEX_FILE_NAME)){
         cout << "YUP" << endl;
     } else {
         cout << "NOPE";
+        setblocks.clear();
         COUNT_NOTES_IN_BLOCK = itemsInBlock;
         ofstream iout(INDEX_FILE_NAME, ios::binary | ios::app);
         for(int i=0; i<itemsInBlock; i++){
@@ -40,9 +42,8 @@ FSD::FSD(int itemsInBlock) {
                 if(i==0) {
                     KP kp(const_cast<char *>("bnd"), 0);
                     iout.write((char*)&kp, sizeof(KP));
-                    long long n = 0;
-                    KP block(const_cast<char *>("bnd"), n);
-                    blocks[0]=block;
+                    KP block(const_cast<char *>("bnd"), 0);
+                    setblocks.insert(block);
                 } else {
                     KP kp(const_cast<char *>("_"), 1);
                     iout.write((char*)&kp, sizeof(KP));
@@ -62,13 +63,15 @@ void FSD::getall() {
         count++;
     }
     iin.close();
+    getchar();
 }
 void FSD::insert(char* ikey, void* iNote) {//вставка записи
     long long point = addToEnd(iNote);//добавляем в конец notes запись, в point указатель
-    long long mid;
-    long long placeInsert = getLocalNoteIndex(ikey, mid);//где
+    long long begin = getBeginBlock(ikey);
+    long long local = getLocalNoteInBlock(ikey, begin);
+    cout << begin << " " << local;
     fstream in(INDEX_FILE_NAME, ios::binary | ios::out | ios::in);
-    in.seekg(placeInsert);
+    /*in.seekg(placeInsert);
     KP kp(ikey, point);
     list<KP> listkp;
     listkp.push_back(kp);
@@ -79,6 +82,7 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
             listkp.push_back(kp);
         } else if(kp.pointer<0) {
             cout << "endblock";
+            getall();
             mid =(COUNT_NOTES_IN_BLOCK/2)* sizeof(KP);
             in.seekg(mid);
             list<KP> mlistkp;
@@ -91,7 +95,8 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
                 }
             }
             KP block(beg, COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS*sizeof(KP));
-            blocks[COUNT_BLOCKS]=block;
+            setblocks.insert(block);
+            //blocks[COUNT_BLOCKS]=block;
             in.seekg(COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS* sizeof(KP));
             COUNT_BLOCKS++;
             for(int i=0; i<COUNT_NOTES_IN_BLOCK/2; i++) {
@@ -123,7 +128,7 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
     for(int i=0; listkp.size()>0; i++) {
         in.write((char*)&listkp.front(), sizeof(KP));
         listkp.pop_front();
-    }
+    }*/
     in.close();
 }
 long long FSD::addToEnd(void* iNote) { //помещение записи в конец файла с записями
@@ -142,18 +147,79 @@ long long FSD::addToEnd(void* iNote) { //помещение записи в ко
 
     return point;
 }
-
 long long FSD::getBeginBlock(char* key){
-    for(int i=0; i<COUNT_BLOCKS; i++) {
-        if(comparemas(key,blocks[i].key)||COUNT_BLOCKS==1) {
-            cout << i*COUNT_NOTES_IN_BLOCK* sizeof(KP) << endl;
-            return i*COUNT_NOTES_IN_BLOCK* sizeof(KP);
+    int div=2;
+    long long beg=0;
+    int size=setblocks.size();
+    int loc=size/div;
+    while(true) {
+        int c=0;
+        char* keyset;
+        for(auto i : setblocks) {
+            if(c==loc) {
+                keyset = i.key;
+                break;
+            }
+            c++;
+        }
+        if(comparemas(key, keyset)) {
+            if(div*2>size) {
+                beg = loc-size/div/2-1;
+                break;
+            } else {
+                div*=2;
+                loc-=size/div;
+            }
+        } else {
+            if(div>size) {
+                beg =  loc+size/div/2-1;
+                break;
+            } else {
+                div*=2;
+                loc+=size/div;
+            }
         }
     }
-    cout << (COUNT_BLOCKS-1)*COUNT_NOTES_IN_BLOCK* sizeof(KP) << endl;
-    return (COUNT_BLOCKS-1)*COUNT_NOTES_IN_BLOCK* sizeof(KP);
+    if(beg<0) {
+        beg=0;
+    }
+    return beg;
 }
-long long FSD::getLocalNoteIndex(char* ikey, long long mid) {
+long long FSD::getLocalNoteInBlock(char* key, long long beginblock){
+    int div=2;
+    long long beg=0;
+    int size=COUNT_NOTES_IN_BLOCK;
+    int loc=size/div;
+    fstream fin("index.txt", ios::binary | ios::in);
+    while(true) {
+        int c=0;
+        char* keyset;
+        int f=(loc+beginblock*COUNT_NOTES_IN_BLOCK)* sizeof(KP);
+        fin.seekg(f);
+        KP kp;
+        fin.read((char*)&kp, sizeof(KP));
+        keyset = kp.key;
+        if(comparemas(key, keyset)) {
+            if(div*2>size) {
+                beg = loc-size/div/2-1;
+                break;
+            } else {
+                div*=2;
+                loc-=size/div;
+            }
+        } else {
+            if(div>size) {
+                beg =  loc+size/div/2-1;
+                break;
+            } else {
+                div*=2;
+                loc+=size/div;
+            }
+        }
+    }
+    return (beg+COUNT_NOTES_IN_BLOCK*beginblock)*sizeof(KP);
+}
+/*long long FSD::getLocalNoteIndex(char* ikey, long long mid) {
     long long local;
     long long begin = getBeginBlock(ikey);//получаем начало блока, в который надо положть запись
     mid = begin;
@@ -164,10 +230,7 @@ long long FSD::getLocalNoteIndex(char* ikey, long long mid) {
         local = iin.tellg();
         iin.read((char*)&kp, sizeof(KP));//получаем запись из блока
         if(comparemas(ikey, kp.key)) {
-
             return local;
-        } else {
-            iin.seekg(begin+i* sizeof(KP));
         }
     }
     return begin;
@@ -209,4 +272,12 @@ void FSD::delNote(char* key){
         mlistkp.pop_front();
     }
     iout.close();
+}*/
+KP::KP() {
+
+}
+
+bool KP::operator<(const KP &v) const {
+    bool t = comparemas(this->key, v.key);
+    return t;
 }

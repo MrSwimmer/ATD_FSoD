@@ -18,7 +18,7 @@ class FSD {
     const char* NOTES_FILE_NAME = "notes.txt";
     int COUNT_BLOCKS=1;
     int COUNT_NOTES_IN_BLOCK;
-    KP blocks[100];
+    set<KP> setblocks;
     int c=0;
 public:
     FSD(int itemsInBlock);
@@ -29,8 +29,9 @@ public:
     void *getNoteSup(long long int point);
     void delNote(char *key);
     void getall();
-
     long long int getLocalNoteIndex(char *ikey, long long int mid);
+
+    long long int getLocalNoteInBlock(char *key, long long int beginblock);
 };
 
 #endif //ATD_FSOD_FSD_H
