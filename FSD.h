@@ -34,6 +34,10 @@ public:
     void getall();
 
     long long int getLocalNoteInBlock(char *key, long long int beginblock);
+
+    void del(char *ikey);
+
+    void *find(char *ikey);
 };
 
 #endif //ATD_FSOD_FSD_H

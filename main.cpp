@@ -71,12 +71,19 @@ void menu() {
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-
     FSD fsd(100);
+    unsigned int start_time =  clock();
     for (int i = 0; i < 1000; ++i) {
+        //cout << "in" << i << endl;
         fsd.insert(randomStrings(), &i);
     }
     fsd.getall();
+    unsigned int end_time = clock();
+    int res = end_time - start_time;
+    cout << "time " << res << endl;
+    char* f;
+    gets(f);
+    fsd.find(f);
     /*
     FSD fsd(10);
     for(int i=0; i<50; i++) {
