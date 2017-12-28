@@ -25,7 +25,6 @@ bool comparemas(char *a, char *b) {
         return true;
     }
 }
-
 using namespace std;
 
 FSD::FSD(int itemsInBlock) {
@@ -77,22 +76,23 @@ void FSD::getall() {
         cout << count << " " << kpr.key << " loc " << kpr.pointer << endl;
         count++;
     }
+    getchar();
     iin.close();
 }
 
 void FSD::insert(char *ikey, void *iNote) {//вставка записи
     long long point = addToEnd(iNote);//добавляем в конец notes запись, в point указатель
     long long begin = getBeginBlock(ikey);//начало блока
-    long long local = getLocalNoteInBlock(ikey, begin);//номер записи
-    long long localins = (local + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);//указатель на запись
-    long long lastnote = (COUNT_NOTES_IN_BLOCK * (begin + 1) - 1) * sizeof(KP);
-    long long middle = (COUNT_NOTES_IN_BLOCK / 2 + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);
+    long long local = getLocalNoteInBlock(ikey, begin);//указатель на запись
+    local = local* sizeof(KP) + begin;
+    long long lastnote = begin + (COUNT_NOTES_IN_BLOCK-1)* sizeof(KP);
+    long long middle = begin + COUNT_NOTES_IN_BLOCK/2* sizeof(KP);
     fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
-    in.seekg(localins);
-    int sizerest = static_cast<int>((COUNT_NOTES_IN_BLOCK - local - 1) * sizeof(KP));
+    in.seekg(local);
+    int sizerest = begin + (COUNT_NOTES_IN_BLOCK-1)* sizeof(KP) - local;
     char *rest = new char[sizerest];
     in.read(rest, sizerest);
-    in.seekp(localins);
+    in.seekp(local);
     KP kp(ikey, static_cast<int>(point));
     in.write((char *) &kp, sizeof(KP));
     in.write(rest, sizerest);
@@ -121,24 +121,22 @@ void FSD::insert(char *ikey, void *iNote) {//вставка записи
 }
 void FSD::del(char *ikey) {
     long long begin = getBeginBlock(ikey);//начало блока
-    long long local = getLocalNoteInBlock(ikey, begin);//номер записи
-    long long localins = (local + 1 + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);//указатель на запись
+    long long local = getLocalNoteInBlock(ikey, begin);//указатель на запись
     fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
-    in.seekg(localins);
-    int sizerest = static_cast<int>((COUNT_NOTES_IN_BLOCK - local - 1) * sizeof(KP));
+    in.seekg(local);
+    int sizerest = begin + (COUNT_NOTES_IN_BLOCK-1)* sizeof(KP) - local;
     char *rest = new char[sizerest];
     in.read(rest, sizerest);
-    in.seekp(localins - sizeof(KP));
+    in.seekp(local - sizeof(KP));
     in.write(rest, sizerest);
     KP e("_", 0);
     in.write((char*)&e, sizeof(KP));
 }
 void* FSD::find(char *ikey) {
     long long begin = getBeginBlock(ikey);//начало блока
-    long long local = getLocalNoteInBlock(ikey, begin);//номер записи
-    long long localins = (local + 1 + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);//указатель на запись
+    long long local = getLocalNoteInBlock(ikey, begin);//указатель на запись
     fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
-    in.seekg(localins);
+    in.seekg(local);
     KP kp;
     in.read((char*)&kp, sizeof(KP));
     in.close();
@@ -153,7 +151,6 @@ void* FSD::find(char *ikey) {
     return data;
 }
 long long FSD::addToEnd(void *iNote) { //помещение записи в конец файла с записями
-
     ofstream nout("notes.txt", ios::binary | ios::app);
     fstream file("notes.txt");
     int size = sizeof(iNote);
@@ -167,42 +164,13 @@ long long FSD::addToEnd(void *iNote) { //помещение записи в ко
 }
 
 long long FSD::getBeginBlock(char *key) {
-    int div = 2;
-    long long beg = 0;
-    int size = setblocks.size();
-    int loc = size / div;
-    while (true) {
-        int c = 0;
-        char *keyset;
-        for (auto i : setblocks) {
-            if (c == loc) {
-                keyset = i.key;
-                break;
-            }
-            c++;
+    int c=0;
+    for (auto i : setblocks) {
+        if (comparemas(key, i.key)|| c==setblocks.size()-1){
+            return i.pointer;
         }
-        if (comparemas(key, keyset)) {
-            if (div * 2 > size) {
-                beg = loc - size / div / 2 - 1;
-                break;
-            } else {
-                div *= 2;
-                loc -= size / div;
-            }
-        } else {
-            if (div > size) {
-                beg = loc + size / div / 2 - 1;
-                break;
-            } else {
-                div *= 2;
-                loc += size / div;
-            }
-        }
+        c++;
     }
-    if (beg < 0) {
-        beg = 0;
-    }
-    return beg;
 }
 
 long long FSD::getLocalNoteInBlock(char *key, long long beginblock) {
@@ -214,7 +182,7 @@ long long FSD::getLocalNoteInBlock(char *key, long long beginblock) {
     while (true) {
         int c = 0;
         char *keyset;
-        int f = (loc + beginblock * COUNT_NOTES_IN_BLOCK) * sizeof(KP);
+        int f = loc * sizeof(KP) + beginblock;
         fin.seekg(f);
         KP kp;
         fin.read((char *) &kp, sizeof(KP));

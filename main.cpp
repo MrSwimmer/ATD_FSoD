@@ -29,13 +29,11 @@ char *randomStrings(int sybols = 3) {
     return str;
 }
 
-/*bool ex = false;
 FSD fsd(10);
 
-char *key;
-
-void menu() {
+/*void menu() {
     int k = 1;
+    char *key;
     while (k != 0) {
         cout << "1.Insert" << endl;
         cout << "2.Delete" << endl;
@@ -71,71 +69,11 @@ void menu() {
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-    FSD fsd(100);
-    unsigned int start_time =  clock();
-    for (int i = 0; i < 1000; ++i) {
-        //cout << "in" << i << endl;
+    /*unsigned int start_time =  clock();
+    for (int i = 0; i < 100; ++i) {
         fsd.insert(randomStrings(), &i);
     }
-    fsd.getall();
     unsigned int end_time = clock();
     int res = end_time - start_time;
-    cout << "time " << res << endl;
-    char* f;
-    gets(f);
-    fsd.find(f);
-    /*
-    FSD fsd(10);
-    for(int i=0; i<50; i++) {
-        fsd.insert(randomStrings(), &i);
-    }*/
-    //menu();
-    /*set<KP> setblocks;
-    for(int i=0; i<100; i++) {
-        char *rs = randomStrings();
-        cout << rs << endl;
-        KP kp(rs, i);
-        setblocks.insert(kp);
-    }
-    cout << endl;
-    for(auto i : setblocks) {
-        KP kp = i;
-        cout << kp.key << endl;
-    }
-
-    char *key = "baa";
-    int div=2;
-    int size=setblocks.size();
-    int loc=size/div;
-    while(true) {
-        int c=0;
-        char* keyset;
-        for(auto i : setblocks) {
-            if(c==loc) {
-                keyset = i.key;
-                break;
-            }
-            c++;
-        }
-        cout << loc;
-        if(comparemass(key, keyset)) {
-            if(div*2>size) {
-                cout << loc-size/div/2-1;
-                break;
-                //return loc-1;
-            } else {
-                div*=2;
-                loc-=size/div;
-            }
-        } else {
-            if(div>size) {
-                cout << loc+size/div/2-1;
-                break;
-                //return loc+1;
-            } else {
-                div*=2;
-                loc+=size/div;
-            }
-        }
-    }*/
+    cout << "time " << res << endl;*/
 }
