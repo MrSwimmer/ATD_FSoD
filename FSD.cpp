@@ -70,8 +70,16 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
     long long begin = getBeginBlock(ikey);//начало блока
     long long local = getLocalNoteInBlock(ikey, begin);//номер записи
     long long localins = (local+COUNT_NOTES_IN_BLOCK*begin)*sizeof(KP);//указатель на запись
-    fstream in(INDEX_FILE_NAME, ios::binary | ios::out | ios::in);
+    fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
     in.seekg(localins);
+    int sizerest = static_cast<int>((COUNT_NOTES_IN_BLOCK - local - 1) * sizeof(KP));
+    char* rest = new char[sizerest];
+    in.read(rest, sizerest);
+    in.seekp(localins);
+    KP kp(ikey, static_cast<int>(point));
+    in.write((char*)&kp, sizeof(KP));
+    in.write(rest, sizerest);
+    in.close();
     /*in.seekg(placeInsert);
     KP kp(ikey, point);
     list<KP> listkp;
@@ -130,7 +138,7 @@ void FSD::insert(char* ikey, void* iNote) {//вставка записи
         in.write((char*)&listkp.front(), sizeof(KP));
         listkp.pop_front();
     }*/
-    in.close();
+    //in.close();
 }
 long long FSD::addToEnd(void* iNote) { //помещение записи в конец файла с записями
 
