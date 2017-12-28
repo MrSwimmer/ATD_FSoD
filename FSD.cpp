@@ -12,238 +12,193 @@ bool FileExists(const char *fname) {
 }
 
 bool comparemas(char *a, char *b) {
-    if(b=="_") {
+    if (b == "_") {
         return true;
     } else {
-        for(int i=0; a[0]!='\0'; i++) {
-            if(a[i]<b[i]) {
+        for (int i = 0; a[0] != '\0'; i++) {
+            if (a[i] < b[i]) {
                 return true;
-            } else if (a[i]>b[i]) {
+            } else if (a[i] > b[i]) {
                 return false;
             }
         }
         return true;
     }
 }
+
 using namespace std;
+
 FSD::FSD(int itemsInBlock) {
-    if(FileExists(INDEX_FILE_NAME)){
+    setblocks.clear();
+    COUNT_NOTES_IN_BLOCK = itemsInBlock;
+    sizehalf = (COUNT_NOTES_IN_BLOCK / 2) * sizeof(KP);
+    if (FileExists(INDEX_FILE_NAME)) {
         cout << "YUP" << endl;
     } else {
         cout << "NOPE";
-        setblocks.clear();
-        COUNT_NOTES_IN_BLOCK = itemsInBlock;
-        ofstream iout(INDEX_FILE_NAME, ios::binary | ios::app);
-        for(int i=0; i<itemsInBlock; i++){
-            if(i==itemsInBlock-1){
-                KP kp(const_cast<char *>("_"), -8000);
-                iout.write((char*)&kp, sizeof(KP));
-            } else {
-                if(i==0) {
-                    KP kp(const_cast<char *>("bnd"), 0);
-                    iout.write((char*)&kp, sizeof(KP));
-                    KP block(const_cast<char *>("bnd"), 0);
-                    setblocks.insert(block);
-                } else {
-                    KP kp(const_cast<char *>("_"), 1);
-                    iout.write((char*)&kp, sizeof(KP));
-                }
-            }
+        fstream femp(EMP_FILE_NAME, ios::binary | ios::app | ios::out | ios::in);
+        for (int i = 0; i < itemsInBlock/2; i++) {
+            KP kp(const_cast<char *>("_"), 1);
+            femp.write((char *)&kp, sizeof(KP));
         }
-        iout.close();
+        femp.seekg(0);
+        femp.read(emp, sizehalf);
+        femp.close();
+        fstream fin(INDEX_FILE_NAME, ios::binary | ios::out);
+        fin.seekg(0);
+        fin.write(emp, sizehalf);
+        fin.write(emp, sizehalf);
+        fin.seekg(0);
+        KP kp(const_cast<char *>("bnd"), 0);
+        fin.write((char*)&kp, sizeof(KP));
+        KP block(const_cast<char *>("bnd"), 0);
+        setblocks.insert(block);
+        fin.close();
     }
 }
+
 void FSD::getall() {
     ifstream iin(INDEX_FILE_NAME, ios::binary);
     int count = 0;
     KP kpr;
     while (!iin.eof()) {
-        iin.read((char*)&kpr, sizeof(KP));
+        iin.read((char *) &kpr, sizeof(KP));
         cout << count << " " << kpr.key << " loc " << kpr.pointer << endl;
         count++;
     }
     iin.close();
-    getchar();
 }
-void FSD::insert(char* ikey, void* iNote) {//вставка записи
+
+void FSD::insert(char *ikey, void *iNote) {//вставка записи
     long long point = addToEnd(iNote);//добавляем в конец notes запись, в point указатель
     long long begin = getBeginBlock(ikey);//начало блока
     long long local = getLocalNoteInBlock(ikey, begin);//номер записи
-    long long localins = (local+COUNT_NOTES_IN_BLOCK*begin)*sizeof(KP);//указатель на запись
+    long long localins = (local + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);//указатель на запись
+    long long lastnote = (COUNT_NOTES_IN_BLOCK * (begin + 1) - 1) * sizeof(KP);
+    long long middle = (COUNT_NOTES_IN_BLOCK / 2 + COUNT_NOTES_IN_BLOCK * begin) * sizeof(KP);
     fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
+
     in.seekg(localins);
     int sizerest = static_cast<int>((COUNT_NOTES_IN_BLOCK - local - 1) * sizeof(KP));
-    char* rest = new char[sizerest];
+    char *rest = new char[sizerest];
     in.read(rest, sizerest);
     in.seekp(localins);
     KP kp(ikey, static_cast<int>(point));
-    in.write((char*)&kp, sizeof(KP));
+    in.write((char *) &kp, sizeof(KP));
     in.write(rest, sizerest);
-    in.close();
-    /*in.seekg(placeInsert);
-    KP kp(ikey, point);
-    list<KP> listkp;
-    listkp.push_back(kp);
-    bool endblock = false;
-    while (!endblock) {
-        in.read((char*)&kp, sizeof(KP));
-        if(kp.key!="_") {
-            listkp.push_back(kp);
-        } else if(kp.pointer<0) {
-            cout << "endblock";
-            getall();
-            mid =(COUNT_NOTES_IN_BLOCK/2)* sizeof(KP);
-            in.seekg(mid);
-            list<KP> mlistkp;
-            char *beg;
-            for(int i=COUNT_NOTES_IN_BLOCK/2; i<COUNT_NOTES_IN_BLOCK-1; i++) {
-                in.read((char*)&kp, sizeof(KP));
-                mlistkp.push_back(kp);
-                if(i==COUNT_NOTES_IN_BLOCK/2){
-                    beg = kp.key;
-                }
-            }
-            KP block(beg, COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS*sizeof(KP));
-            setblocks.insert(block);
-            //blocks[COUNT_BLOCKS]=block;
-            in.seekg(COUNT_NOTES_IN_BLOCK*COUNT_BLOCKS* sizeof(KP));
-            COUNT_BLOCKS++;
-            for(int i=0; i<COUNT_NOTES_IN_BLOCK/2; i++) {
-                in.write((char*)&mlistkp.front(), sizeof(KP));
-                mlistkp.pop_front();
-            }
-            for(int i=COUNT_NOTES_IN_BLOCK/2; i<COUNT_NOTES_IN_BLOCK; i++) {
-                if(i==COUNT_NOTES_IN_BLOCK-1) {
-                    KP kpe(const_cast<char *>("_"), -1);
-                    in.write((char*)&kpe, sizeof(KP));
-                } else {
-                    KP kpe(const_cast<char *>("_"), 1);
-                    in.write((char*)&kpe, sizeof(KP));
-                }
-            }
-            in.seekg(mid);
-            for(int i=COUNT_NOTES_IN_BLOCK/2; i<COUNT_NOTES_IN_BLOCK-1; i++) {
-                KP kpe(const_cast<char *>("_"), 1);
-                in.write((char*)&kpe, sizeof(KP));
-            }
-            in.close();
-            return;
-            endblock = true;
-        } else {
-            endblock = true;
-        }
+    KP last;
+    in.seekg(lastnote);
+    in.read((char *) &last, sizeof(KP));
+    if (last.key != "_") {
+        char *half = new char[sizehalf];
+        in.seekg(middle);
+        KP beginbl;
+        in.read((char*)&beginbl, sizeof(KP));
+        in.seekg(middle);
+        in.read(half, sizehalf);
+        in.seekg(middle);
+        in.write(emp, sizehalf);
+        in.seekg(0, ios::end);
+        long long begnewbl = in.tellg();
+        in.write(half, sizehalf);
+        in.write(emp, sizehalf);
+        KP kpnb(beginbl.key, begnewbl);
+        setblocks.insert(kpnb);
     }
-    in.seekp(placeInsert);
-    for(int i=0; listkp.size()>0; i++) {
-        in.write((char*)&listkp.front(), sizeof(KP));
-        listkp.pop_front();
-    }*/
-    //in.close();
+    in.close();
 }
-long long FSD::addToEnd(void* iNote) { //помещение записи в конец файла с записями
+
+long long FSD::addToEnd(void *iNote) { //помещение записи в конец файла с записями
 
     ofstream nout("notes.txt", ios::binary | ios::app);
     fstream file("notes.txt");
 
     int size = sizeof(iNote);
     long long point;
-    file.seekg (0, ios::end);
+    file.seekg(0, ios::end);
     point = file.tellg();
 
-    nout.write((char*)&size, sizeof(int));
-    nout.write((char*)iNote, size);
+    nout.write((char *) &size, sizeof(int));
+    nout.write((char *) iNote, size);
     nout.close();
 
     return point;
 }
-long long FSD::getBeginBlock(char* key){
-    int div=2;
-    long long beg=0;
-    int size=setblocks.size();
-    int loc=size/div;
-    while(true) {
-        int c=0;
-        char* keyset;
-        for(auto i : setblocks) {
-            if(c==loc) {
+
+long long FSD::getBeginBlock(char *key) {
+    int div = 2;
+    long long beg = 0;
+    int size = setblocks.size();
+    int loc = size / div;
+    while (true) {
+        int c = 0;
+        char *keyset;
+        for (auto i : setblocks) {
+            if (c == loc) {
                 keyset = i.key;
                 break;
             }
             c++;
         }
-        if(comparemas(key, keyset)) {
-            if(div*2>size) {
-                beg = loc-size/div/2-1;
+        if (comparemas(key, keyset)) {
+            if (div * 2 > size) {
+                beg = loc - size / div / 2 - 1;
                 break;
             } else {
-                div*=2;
-                loc-=size/div;
+                div *= 2;
+                loc -= size / div;
             }
         } else {
-            if(div>size) {
-                beg =  loc+size/div/2-1;
+            if (div > size) {
+                beg = loc + size / div / 2 - 1;
                 break;
             } else {
-                div*=2;
-                loc+=size/div;
+                div *= 2;
+                loc += size / div;
             }
         }
     }
-    if(beg<0) {
-        beg=0;
+    if (beg < 0) {
+        beg = 0;
     }
     return beg;
 }
-long long FSD::getLocalNoteInBlock(char* key, long long beginblock){
-    int div=2;
-    long long beg=0;
-    int size=COUNT_NOTES_IN_BLOCK;
-    int loc=size/div;
+
+long long FSD::getLocalNoteInBlock(char *key, long long beginblock) {
+    int div = 2;
+    long long beg = 0;
+    int size = COUNT_NOTES_IN_BLOCK;
+    int loc = size / div;
     fstream fin("index.txt", ios::binary | ios::in);
-    while(true) {
-        int c=0;
-        char* keyset;
-        int f=(loc+beginblock*COUNT_NOTES_IN_BLOCK)* sizeof(KP);
+    while (true) {
+        int c = 0;
+        char *keyset;
+        int f = (loc + beginblock * COUNT_NOTES_IN_BLOCK) * sizeof(KP);
         fin.seekg(f);
         KP kp;
-        fin.read((char*)&kp, sizeof(KP));
+        fin.read((char *) &kp, sizeof(KP));
         keyset = kp.key;
-        if(comparemas(key, keyset)) {
-            if(div*2>size) {
-                beg = loc-size/div/2-1;
+        if (comparemas(key, keyset)) {
+            if (div * 2 > size) {
+                beg = loc - size / div / 2 - 1;
                 break;
             } else {
-                div*=2;
-                loc-=size/div;
+                div *= 2;
+                loc -= size / div;
             }
         } else {
-            if(div>size) {
-                beg =  loc+size/div/2-1;
+            if (div > size) {
+                beg = loc + size / div / 2 - 1;
                 break;
             } else {
-                div*=2;
-                loc+=size/div;
+                div *= 2;
+                loc += size / div;
             }
         }
     }
     return beg;
 }
-/*long long FSD::getLocalNoteIndex(char* ikey, long long mid) {
-    long long local;
-    long long begin = getBeginBlock(ikey);//получаем начало блока, в который надо положть запись
-    mid = begin;
-    ifstream iin(INDEX_FILE_NAME, ios::binary);
-    iin.seekg(begin);
-    for(int i=0; i<COUNT_NOTES_IN_BLOCK; i++) {
-        KP kp;
-        local = iin.tellg();
-        iin.read((char*)&kp, sizeof(KP));//получаем запись из блока
-        if(comparemas(ikey, kp.key)) {
-            return local;
-        }
-    }
-    return begin;
-}
+
 void* FSD::getNote(char* ikey){
     KP kp;
     long long locget = getLocalNoteIndex(ikey, 0);
@@ -285,6 +240,7 @@ void FSD::delNote(char* key){
 KP::KP() {
 
 }
+
 bool KP::operator<(const KP &v) const {
     bool t = comparemas(this->key, v.key);
     return t;

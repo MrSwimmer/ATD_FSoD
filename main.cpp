@@ -71,11 +71,12 @@ void menu() {
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-    FSD fsd(10);
-    for (int i = 0; i < 100; ++i) {
-        fsd.insert("key", &i);
-        fsd.getall();
+
+    FSD fsd(100);
+    for (int i = 0; i < 1000; ++i) {
+        fsd.insert(randomStrings(), &i);
     }
+    fsd.getall();
     /*
     FSD fsd(10);
     for(int i=0; i<50; i++) {
