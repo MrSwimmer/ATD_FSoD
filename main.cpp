@@ -29,8 +29,6 @@ char *randomStrings(int sybols = 3) {
     return str;
 }
 
-FSD fsd(10);
-
 /*void menu() {
     int k = 1;
     char *key;
@@ -69,11 +67,15 @@ FSD fsd(10);
 
 int main() {
     srand(static_cast<unsigned int>(time(NULL)));
-    /*unsigned int start_time =  clock();
-    for (int i = 0; i < 100; ++i) {
+    FSD fsd(100);
+    unsigned int start_time =  clock();
+    for (int i = 0; i < 1000; ++i) {
         fsd.insert(randomStrings(), &i);
     }
     unsigned int end_time = clock();
     int res = end_time - start_time;
-    cout << "time " << res << endl;*/
+    cout << "time " << res << endl;
+    char *q;
+    fsd.find("cha");
+    //cout << fsd.COUNT_BLOCKS;
 }
