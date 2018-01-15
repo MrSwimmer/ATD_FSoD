@@ -17,7 +17,6 @@ class FSD {
     const char* INDEX_FILE_NAME = "index.txt";
     const char* NOTES_FILE_NAME = "notes.txt";
     const char* EMP_FILE_NAME = "emp.txt";
-
     int COUNT_NOTES_IN_BLOCK;
     int sizehalf;
     set<KP> setblocks;
@@ -40,6 +39,8 @@ public:
     void saveset();
     void getset();
     void getSetFromFile();
+
+    long long int getLocalNoteInBlockToSearch(char *key, long long int beginblock);
 };
 
 #endif //ATD_FSOD_FSD_H

@@ -39,16 +39,13 @@ void menu(FSD fsd) {
         cout << "1.Insert" << endl;
         cout << "2.Delete" << endl;
         cout << "3.Get" << endl;
-        cout << "4.Get all" << endl;
-        cout << "5.Insert all" << endl;
+        cout << "4.Insert all" << endl;
         cin >> k;
         switch (k) {
             case 1:
-                cout << "Please enter key" << endl;
-                cin >> key;
                 cout << "Please enter data" << endl;
                 cin >> d;
-                fsd.insert(key, &d);
+                fsd.insert(randomStrings(), &d);
                 break;
             case 2:
                 cout << "Please enter key" << endl;
@@ -67,10 +64,6 @@ void menu(FSD fsd) {
                 cout << "__ready__" << endl;
                 break;
             case 4:
-                fsd.getall();
-                cout << endl << "__ready__" << endl;
-                break;
-            case 5 :
                 int n;
                 cout << "Please enter amount " << endl;
                 cin >> n;
@@ -81,6 +74,8 @@ void menu(FSD fsd) {
                 end_time = clock();
                 res = end_time - start_time;
                 cout << "time " << res << endl;
+            case 5:
+                fsd.getall();
                 break;
         }
     }
