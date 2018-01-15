@@ -33,21 +33,12 @@ public:
     void insert(char *ikey, void *iNote);
     long long int addToEnd(void *iNote);
     long long getBeginBlock(char *key);
-
     void getall();
-
     long long int getLocalNoteInBlock(char *key, long long int beginblock);
-
     void del(char *ikey);
-
     void find(char *ikey);
-
-    void find(char *ikey, void *obj);
-
     void saveset();
-
     void getset();
-
     void getSetFromFile();
 };
 

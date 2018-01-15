@@ -35,19 +35,8 @@ FSD::FSD(int itemsInBlock) {
     if (FileExists(INDEX_FILE_NAME)) {
         cout << "YUP" << endl;
         getSetFromFile();
-        fstream fin(INDEX_FILE_NAME, ios::binary | ios::in);
-        for(int i=0; !fin.eof(); i++) {
-            KP note;
-            fin.seekg(i*COUNT_NOTES_IN_BLOCK*sizeof(KP));
-            fin.read((char*)&note, sizeof(KP));
-            KP block(note.key, fin.tellg());
-            setblocks.insert(block);
-        }
-        cout << "size set " << setblocks.size() << endl;
-        fin.close();
     } else {
         fstream fin(INDEX_FILE_NAME, ios::binary | ios::out);
-        cout << "NOPE";
         fstream femp(EMP_FILE_NAME, ios::binary | ios::app | ios::out | ios::in);
         for (int i = 0; i < COUNT_NOTES_IN_BLOCK/2; i++) {
             KP kp(const_cast<char *>("_"), 1);
@@ -141,14 +130,6 @@ void FSD::find(char *ikey) {
     in.read((char*)&kp, sizeof(KP));
     in.close();
     cout << "LOCAL: block " << begin/COUNT_NOTES_IN_BLOCK/ sizeof(KP) << " position " << local << endl;
-    /*fstream nn(NOTES_FILE_NAME, ios::binary | ios::in | ios::out);
-    nn.seekg(kp.pointer);
-    int size;
-    void *obj;
-    nn.read((char*)&size, sizeof(int));
-    nn.read((char*)&obj, size);
-    cout << nn.tellg();
-    nn.close();*/
 }
 long long FSD::addToEnd(void *iNote) { //помещение записи в конец файла с записями
     ofstream nout("notes.txt", ios::binary | ios::app);
@@ -177,12 +158,8 @@ void FSD::saveset() {
     int count = setblocks.size();
     fin.write((char*)&count, sizeof(int));
     for (auto i : setblocks) {
-        try {
             cout << c << ". " << i.key << " " << i.pointer << endl;
             fin.write((char*)&i, sizeof(KP));
-        } catch (int i){
-            //пофиг
-        }
     }
     fin.close();
 }
@@ -241,7 +218,6 @@ long long FSD::getLocalNoteInBlock(char *key, long long beginblock) {
     }
     return beg;
 }
-
 
 KP::KP() {
 
