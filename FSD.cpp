@@ -90,7 +90,7 @@ void FSD::del(char *ikey) {
         return;
     }
     fstream in(INDEX_FILE_NAME, ios::binary | ios::in | ios::out);
-    in.seekg(local* sizeof(KP) + begin);
+    in.seekg(local);
     KP e("_", 0);
     in.write((char*)&e, sizeof(KP));
     in.close();
