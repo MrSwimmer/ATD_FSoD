@@ -6,6 +6,7 @@
 #define ATD_FSOD_KP_H
 #include "FSD.h"
 class KP {
+    //const lenght = 4;
 public:
     KP(char* key, int pointer) {
         this->key = key;
@@ -14,6 +15,6 @@ public:
     bool operator < (const KP &v) const ;
     KP();
     int pointer;
-    char* key;
+    char *key;
 };
 #endif //ATD_FSOD_KP_H
