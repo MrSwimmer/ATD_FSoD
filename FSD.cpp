@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <list>
 #include <cstring>
-
+#include <string.h>
 bool FileExists(const char *fname) {
     return access(fname, 0) != -1;
 }
@@ -40,8 +40,8 @@ FSD::FSD(int itemsInBlock) {
     } else {
         fstream fin(INDEX_FILE_NAME, ios::binary | ios::out);
         fstream femp(EMP_FILE_NAME, ios::binary | ios::app | ios::out | ios::in);
+        KP kp(const_cast<char *>("_"), 1);
         for (int i = 0; i < COUNT_NOTES_IN_BLOCK / 2; i++) {
-            KP kp(const_cast<char *>("_"), 1);
             femp.write((char *) &kp, sizeof(KP));
         }
         femp.seekg(0);
@@ -50,9 +50,12 @@ FSD::FSD(int itemsInBlock) {
         fin.seekg(0);
         fin.write(emp, sizehalf);
         fin.write(emp, sizehalf);
+        if(COUNT_NOTES_IN_BLOCK%2!=0) {
+            fin.write((char *)&kp, sizeof(KP));
+        }
         fin.seekg(0);
-        KP kp(const_cast<char *>("bnd"), 0);
-        fin.write((char *) &kp, sizeof(KP));
+        KP kpn(const_cast<char *>("bnd"), 0);
+        fin.write((char *) &kpn, sizeof(KP));
         KP block(const_cast<char *>("bnd"), 0);
         setblocks.insert(block);
         fin.close();
@@ -155,7 +158,10 @@ long long FSD::getBeginBlock(char *key) {
     int c = 0;
     long p = 0;
     for (auto i : setblocks) {
-        if (comparemas(key, i.key) || c == setblocks.size() - 1) {
+        if(strcmp(key, i.key)==0) {
+            return i.pointer;
+        }
+        if (strcmp(key, i.key)<0 || c == setblocks.size() - 1) {
             return p;
         }
         p = i.pointer;
@@ -254,6 +260,10 @@ long long FSD::getLocalNoteInBlock(char *key, long long beginblock) {
     long long begnewbl = fin.tellg();
     fin.write(emp, sizehalf);
     fin.write(emp, sizehalf);
+    if(COUNT_NOTES_IN_BLOCK%2!=0) {
+        KP kp(const_cast<char *>("_"), 1);
+        fin.write((char *)&kp, sizeof(KP));
+    }
     fin.close();
     KP kpnb(key, begnewbl);
     setblocks.insert(kpnb);

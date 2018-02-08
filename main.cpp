@@ -88,4 +88,11 @@ int main() {
     cin >> n;
     FSD fsd(n);
     menu(fsd);
+    /*char* a = "123";
+    char* b = "124";
+    if(a==b) {
+        cout << true;
+    } else {
+        cout << false;
+    }*/
 }
